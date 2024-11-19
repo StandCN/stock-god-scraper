@@ -72,19 +72,18 @@ func Init() {
 		log.Println("Service RUN on DEBUG mode")
 		log.Printf("viper.AllSettings(): %v\n", viper.AllSettings())
 	}
-
+	instance = &config{
+		telegramBotToken:        viper.GetString("TELEGRAM_BOT_TOKEN"),
+		telegramChatId:          viper.GetString("TELEGRAM_CHAT_ID"),
+		telegramMessageThreadId: viper.GetString("TELEGRAM_MESSAGE_THREAD_ID"),
+		proxyUrl:                viper.GetString("PROXY_URL"),
+		debug:                   viper.GetBool("DEBUG"),
+		scraperTimeDuration:     uint16(viper.GetInt("SCRAPER_TIME_DURATION")),
+	}
 }
 
-var instance config = config{
-	telegramBotToken:        viper.GetString("TELEGRAM_BOT_TOKEN"),
-	telegramChatId:          viper.GetString("TELEGRAM_CHAT_ID"),
-	telegramMessageThreadId: viper.GetString("TELEGRAM_MESSAGE_THREAD_ID"),
-	proxyUrl:                viper.GetString("PROXY_URL"),
-	debug:                   viper.GetBool("DEBUG"),
-	scraperTimeDuration:     uint16(viper.GetInt("SCRAPER_TIME_DURATION")),
-}
+var instance *config
 
 func GetConfig() Config {
-
 	return instance
 }
