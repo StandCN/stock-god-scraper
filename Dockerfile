@@ -11,7 +11,7 @@ COPY . .
 RUN go mod tidy && go build -o main .
 
 # 使用一个较小的基础镜像来运行应用程序
-FROM alpine:0.1.1
+FROM alpine:3.14
 
 # 设置工作目录
 WORKDIR /root/
