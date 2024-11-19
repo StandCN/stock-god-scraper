@@ -1,0 +1,19 @@
+# 排除 Go 构建缓存和临时文件
+/tmp/*
+/out/*
+/bin/*
+/obj/*
+/vendor/*
+/.idea/*
+/.vscode/*
+*.log
+*.tmp
+*.swp
+*.bak
+*.old
+*.orig
+*.rej
+*.swo
+*.swn
+*.swp
+*.swo
