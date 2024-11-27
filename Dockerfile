@@ -1,5 +1,5 @@
 # 使用官方的 Go 语言镜像作为基础镜像
-FROM golang:1.23
+FROM golang:1.23 AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -17,7 +17,13 @@ FROM alpine:3.14
 WORKDIR /root/
 
 # 将构建阶段的可执行文件复制到运行阶段
-COPY --from=0 /app/main .
+COPY --from=builder /app/main .
+
+# 将 .env 文件复制到镜像中
+COPY --from=builder /app/.env /root/.env
+
+# 将 config/config.toml 文件复制到镜像中
+COPY --from=builder /app/config/config.toml /root/config/config.toml
 
 # 运行可执行文件
 CMD ["./main"]
