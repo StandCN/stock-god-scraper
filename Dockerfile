@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # 下载并安装依赖项并构建可执行文件
-RUN go mod tidy && go build -o main .
+RUN go mod tidy && CGO_ENABLED=0 GOOS=linux GOARCH=x86_64 go build -o main .
 
 # 使用一个较小的基础镜像来运行应用程序
 FROM alpine:3.14
