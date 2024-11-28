@@ -6,7 +6,6 @@
 /vendor/*
 /.idea/*
 /.vscode/*
-/.git/*
 *.log
 *.tmp
 *.swp
