@@ -31,11 +31,11 @@ func main() {
 	run(telegramChan, feishuChan)
 
 	// 创建定时器，每 ${SCRAPER_TIME_DURATION} min执行一次
-	ticker := time.NewTicker(time.Duration(config.GetConfig().ScraperTimeDuration()) * time.Minute) // 定时器7min触发一次
+	ticker := time.NewTicker(time.Duration(config.GetConfig().ScraperTimeDuration()) * time.Minute)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		time.Sleep(time.Duration(rand.N(100)) * time.Millisecond) // 随机等待1min
+		time.Sleep(time.Duration(rand.N(100)) * time.Millisecond) // 随机等待
 		run(telegramChan, feishuChan)
 	}
 }
