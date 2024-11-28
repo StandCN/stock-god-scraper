@@ -10,6 +10,9 @@ COPY . .
 # 下载并安装依赖项并构建可执行文件
 RUN go mod tidy && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
 
+# 检查 .env 文件是否存在，如果不存在则创建一个空的 .env 文件
+RUN if [ ! -f /app/.env ]; then touch /app/.env; fi
+
 # 使用一个较小的基础镜像来运行应用程序
 FROM alpine:3.14
 
@@ -19,9 +22,11 @@ WORKDIR /root/
 # 将构建阶段的可执行文件复制到运行阶段
 COPY --from=builder /app/main .
 
-# 复制 .env 文件和 config/config.toml 文件（如果存在）
-RUN if [ -f /app/.env ]; then cp /app/.env /root/.env; fi && \
-	if [ -f /app/config/config.toml ]; then cp /app/config/config.toml /root/config/config.toml; fi
+# 将 .env 文件从 builder 阶段复制到运行阶段
+COPY --from=builder /app/.env /root/.env
+
+# 将 config.toml 文件从 builder 阶段复制到运行阶段
+COPY --from=builder /app/config/config.toml /root/config/config.toml
 
 # 运行可执行文件
 CMD ["./main"]
