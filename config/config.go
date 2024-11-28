@@ -14,6 +14,7 @@ type Config interface {
 	ProxyUrl() string
 	Debug() bool
 	ScraperTimeDuration() uint16
+	FeishuBotHookToken() string
 }
 type config struct {
 	telegramBotToken        string
@@ -22,6 +23,7 @@ type config struct {
 	proxyUrl                string
 	debug                   bool
 	scraperTimeDuration     uint16
+	feishuBotHookToken      string
 }
 
 // 确保config实现了Config接口
@@ -51,11 +53,15 @@ func (c config) ScraperTimeDuration() uint16 {
 	return c.scraperTimeDuration
 }
 
+func (c config) FeishuBotHookToken() string {
+	return c.feishuBotHookToken
+}
+
 func Init() {
 	// 加载 .env 文件
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	// 加载config.toml
@@ -79,6 +85,7 @@ func Init() {
 		proxyUrl:                viper.GetString("PROXY_URL"),
 		debug:                   viper.GetBool("DEBUG"),
 		scraperTimeDuration:     uint16(viper.GetInt("SCRAPER_TIME_DURATION")),
+		feishuBotHookToken:      viper.GetString("FEISHU_BOT_HOOK_TOKEN"),
 	}
 }
 

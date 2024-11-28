@@ -19,11 +19,9 @@ WORKDIR /root/
 # 将构建阶段的可执行文件复制到运行阶段
 COPY --from=builder /app/main .
 
-# 将 .env 文件复制到镜像中
-COPY --from=builder /app/.env /root/.env
-
-# 将 config/config.toml 文件复制到镜像中
-COPY --from=builder /app/config/config.toml /root/config/config.toml
+# 复制 .env 文件和 config/config.toml 文件（如果存在）
+RUN if [ -f /app/.env ]; then cp /app/.env /root/.env; fi && \
+	if [ -f /app/config/config.toml ]; then cp /app/config/config.toml /root/config/config.toml; fi
 
 # 运行可执行文件
 CMD ["./main"]

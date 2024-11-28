@@ -11,3 +11,6 @@ PROXY_URL=""
 
 # scraper time duration (min)
 SCRAPER_TIME_DURATION=5
+
+# feishu bot hook
+FEISHU_BOT_HOOK_TOKEN=""

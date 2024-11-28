@@ -104,7 +104,7 @@ func fetchPageInfo() (WeiboCardData, error) {
 	})
 
 	filtedCards := slices.DeleteFunc(processedCards, func(data WeiboCardData) bool {
-		return !strings.Contains(data.Text, "进场") && !strings.Contains(data.Text, "离场")
+		return !strings.Contains(data.Text, "进场") && !strings.Contains(data.Text, "离场") && !strings.Contains(data.Text, "买入") && !strings.Contains(data.Text, "卖出")
 	})
 
 	slices.SortFunc(filtedCards, func(left WeiboCardData, right WeiboCardData) int {
