@@ -27,3 +27,6 @@ go.work.sum
 
 # vscode settings
 .vscode/
+
+# 编译文件
+stock-god-scraper
