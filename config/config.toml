@@ -10,7 +10,7 @@ TELEGRAM_MESSAGE_THREAD_ID=""
 PROXY_URL=""
 
 # scraper time duration (min)
-SCRAPER_TIME_DURATION=5
+SCRAPER_TIME_DURATION=1
 
 # feishu bot hook
 FEISHU_BOT_HOOK_TOKEN=""
