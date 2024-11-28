@@ -10,7 +10,7 @@ import (
 
 const (
 	holidayApi        = "http://api.haoshenqi.top/holiday/today"
-	isHolidayResponse = "休息"
+	isHolidayResponse = "工作"
 )
 
 func IsHoliday() (bool, error) {
