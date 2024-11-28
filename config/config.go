@@ -63,7 +63,8 @@ func Init() {
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
-
+	viper.SetDefault("DEBUG", false)
+	viper.SetDefault("SCRAPER_TIME_DURATION", 5)
 	// 加载config.toml
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
