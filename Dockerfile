@@ -16,6 +16,12 @@ RUN if [ ! -f /app/.env ]; then touch /app/.env; fi
 # 使用一个较小的基础镜像来运行应用程序
 FROM alpine:3.14
 
+# 设置时区环境变量
+ENV TZ=Asia/Shanghai
+
+# 安装 tzdata 包以支持时区
+RUN apk add --no-cache tzdata
+
 # 设置工作目录
 WORKDIR /root/
 
