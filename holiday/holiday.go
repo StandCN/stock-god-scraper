@@ -2,10 +2,12 @@
 package holiday
 
 import (
-	"log"
+	"fmt"
 	"stock-god-scraper/request"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -16,7 +18,7 @@ const (
 func IsHoliday() (bool, error) {
 	resp, err := request.GetClient().Get(holidayApi)
 	if err != nil {
-		log.Fatalf("查询法定节假日请求失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("查询法定节假日请求失败: %v", err))
 		return true, err
 	}
 	if strings.Contains(string(resp.Body()), isHolidayResponse) {

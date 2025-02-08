@@ -2,12 +2,14 @@ package god
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"slices"
 	"stock-god-scraper/request"
 	"stock-god-scraper/stock"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type WeiboCardData struct {
@@ -35,7 +37,7 @@ func FetchSourceData() (WeiboCardData, bool) {
 	// 获取页面信息
 	card, err := fetchPageInfo()
 	if err != nil {
-		log.Printf("抓取页面失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("抓取页面失败: %v", err))
 		return WeiboCardData{}, false
 	}
 	// 存储id
@@ -45,7 +47,7 @@ func FetchSourceData() (WeiboCardData, bool) {
 		// 表示消息已经发送过或没有有效消息
 		return WeiboCardData{}, false
 	}
-	log.Printf("获取到的微博信息: %v", card)
+	logrus.Debugln(fmt.Sprintf("获取到的微博信息: %v", card))
 	return card, true
 }
 
@@ -64,11 +66,13 @@ func fetchPageInfo() (WeiboCardData, error) {
 		Get("https://m.weibo.cn/api/container/getIndex?luicode=20000061&lfid=5044453196435127&type=uid&value=7551230054&containerid=1076037551230054")
 
 	if err != nil {
-		log.Fatalf("请求失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("请求失败: %v", err))
+		return WeiboCardData{}, err
 	}
 
 	if resp.StatusCode() != 200 {
-		log.Fatalf("请求失败: %v", resp.Status())
+		logrus.Errorln(fmt.Sprintf("请求失败: %v", resp.Status()))
+		return WeiboCardData{}, err
 	}
 
 	// 定义一个map来存储解析的JSON数据
@@ -76,18 +80,21 @@ func fetchPageInfo() (WeiboCardData, error) {
 
 	// 解析响应体为JSON
 	if err := json.Unmarshal(resp.Body(), &responseMap); err != nil {
-		log.Fatalf("解析JSON失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("解析JSON失败: %v", err))
+		return WeiboCardData{}, err
 	}
 
 	// 获取cards数组
 	dataMap, ok := responseMap["data"].(map[string]interface{})
 	if !ok {
-		log.Fatalf("解析 data 字段失败")
+		logrus.Errorln("解析 data 字段失败")
+		return WeiboCardData{}, err
 	}
 
 	cards, ok := dataMap["cards"].([]interface{})
 	if !ok {
-		log.Fatalf("解析 cards 字段失败")
+		logrus.Errorln("解析 cards 字段失败")
+		return WeiboCardData{}, err
 	}
 
 	// 使用自定义函数进行"流式处理"

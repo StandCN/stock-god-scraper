@@ -81,6 +81,7 @@ func IsValidDateTime() bool {
 	todayType.isQueried = queriedErr == nil
 	return todayType.isWorkday
 }
+
 func updateCurrentWeekday(weekdayTemp time.Weekday) {
 	if todayType.weekday != weekdayTemp {
 		todayType.weekday = weekdayTemp

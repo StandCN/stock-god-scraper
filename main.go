@@ -11,22 +11,13 @@ import (
 	"time"
 )
 
+type SendMessageFn func(stock.SourceData) error
+
 func main() {
 	config.Init()
 
-	telegramChan := make(chan stock.SourceData)
-	feishuChan := make(chan stock.SourceData)
-
-	go func() {
-		for sourceData := range telegramChan {
-			telegram.SendMessage(sourceData)
-		}
-	}()
-	go func() {
-		for sourceData := range feishuChan {
-			feishu.SendMessage(sourceData)
-		}
-	}()
+	telegramChan := buildChannel(telegram.SendMessage)
+	feishuChan := buildChannel(feishu.SendMessage)
 
 	run(telegramChan, feishuChan)
 
@@ -48,4 +39,19 @@ func run(telegramChan, feishuChan chan stock.SourceData) {
 			feishuChan <- &data
 		}
 	}
+}
+
+func buildChannel(fn SendMessageFn) chan stock.SourceData {
+	msgChan := make(chan stock.SourceData)
+	go func() {
+		for sourceData := range msgChan {
+			for {
+				err := fn(sourceData)
+				if err == nil {
+					break
+				}
+			}
+		}
+	}()
+	return msgChan
 }

@@ -2,14 +2,16 @@ package telegram
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"stock-god-scraper/config"
 	"stock-god-scraper/request"
 	"stock-god-scraper/stock"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
-func FormatMessage[D stock.SourceData](card D) string {
+func FormatMessage(card stock.SourceData) string {
 	return "_当前时间_: " + time.Now().Format("2006-01-02 15:04:05 +0800") + "\n" +
 		"_微博发送时间_: " + card.GetDate().Format("2006-01-02 15:04:05 +0800") + "\n" +
 		"_微博正文_: \n" +
@@ -19,12 +21,10 @@ func FormatMessage[D stock.SourceData](card D) string {
 		"_微博地址_: [点击查看](" + card.GetUrl() + ")"
 }
 
-func SendMessage[D stock.SourceData](card D) {
+func SendMessage(card stock.SourceData) error {
 	var msg = FormatMessage(card)
 
-	if config.GetConfig().Debug() {
-		log.Printf("将要发送到telegram的消息为: %s", msg)
-	}
+	logrus.Debugln(fmt.Sprintf("将要发送到telegram的消息为: %s", msg))
 
 	// send message
 	resp, err := request.GetClientWithProxy().
@@ -38,7 +38,8 @@ func SendMessage[D stock.SourceData](card D) {
 		Post("https://api.telegram.org/bot" + config.GetConfig().TelegramBotToken() + "/sendMessage")
 
 	if err != nil {
-		log.Printf("发送消息失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("发送消息失败: %v", err))
+		return err
 	}
 
 	// 定义一个map来存储解析的JSON数据
@@ -46,12 +47,15 @@ func SendMessage[D stock.SourceData](card D) {
 
 	// 解析响应体为JSON
 	if err := json.Unmarshal(resp.Body(), &responseMap); err != nil {
-		log.Fatalf("解析JSON失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("解析JSON失败: %v", err))
+		return err
 	}
 
 	// 获取cards数组
 	postResult, ok := responseMap["ok"].(bool)
 	if !ok || !postResult {
-		log.Fatalf("发送消息失败。消息: %s, response: %v", msg, responseMap)
+		logrus.Errorln(fmt.Sprintf("发送消息失败。消息: %s, response: %v", msg, responseMap))
+		return err
 	}
+	return nil
 }

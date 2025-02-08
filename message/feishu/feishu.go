@@ -2,14 +2,16 @@ package feishu
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"stock-god-scraper/config"
 	"stock-god-scraper/request"
 	"stock-god-scraper/stock"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
-func FormatMessage[D stock.SourceData](card D) string {
+func FormatMessage[D stock.SourceData](card D) (string, error) {
 	msg := map[string]interface{}{
 		"msg_type": "interactive",
 		"card": map[string]interface{}{
@@ -81,18 +83,21 @@ func FormatMessage[D stock.SourceData](card D) string {
 	}
 	jsonString, err := json.Marshal(msg)
 	if err != nil {
-		log.Fatalf("序列化消息失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("序列化消息失败: %v", err))
+		return "", err
 	}
-	return string(jsonString)
+	return string(jsonString), nil
 
 }
 
-func SendMessage[D stock.SourceData](card D) {
-	var msg = FormatMessage(card)
-
-	if config.GetConfig().Debug() {
-		log.Printf("将要发送到telegram的消息为: %s", msg)
+func SendMessage[D stock.SourceData](card D) error {
+	var msg, err = FormatMessage(card)
+	if err != nil {
+		logrus.Errorln(fmt.Sprintf("序列化消息失败: %v", err))
+		return err
 	}
+
+	logrus.Debugln(fmt.Sprintf("将要发送到telegram的消息为: %s", msg))
 
 	// send message
 	resp, err := request.GetClient().
@@ -101,7 +106,8 @@ func SendMessage[D stock.SourceData](card D) {
 		Post("https://open.feishu.cn/open-apis/bot/v2/hook/" + config.GetConfig().FeishuBotHookToken())
 
 	if err != nil {
-		log.Printf("发送消息失败: %v", err)
+		logrus.Errorln(fmt.Sprintf("发送消息失败: %v", err))
+		return err
 	}
 
 	// 定义一个map来存储解析的JSON数据
@@ -109,12 +115,15 @@ func SendMessage[D stock.SourceData](card D) {
 
 	// 解析响应体为JSON
 	if err := json.Unmarshal(resp.Body(), &responseMap); err != nil {
-		log.Fatalf("解析JSON失败: %v. 消息: %v", err, string(resp.Body()))
+		logrus.Errorln(fmt.Sprintf("解析JSON失败: %v. 消息: %v", err, string(resp.Body())))
+		return err
 	}
 
 	// 发送消息
 	postResult, ok := responseMap["code"].(float64)
 	if !ok || postResult != 0 {
-		log.Fatalf("发送消息失败。消息: %s, response: %v", msg, responseMap)
+		logrus.Errorln(fmt.Sprintf("发送消息失败。消息: %s, response: %v", msg, responseMap))
+		return err
 	}
+	return nil
 }

@@ -1,9 +1,10 @@
 package config
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -61,7 +62,7 @@ func Init() {
 	// 加载 .env 文件
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file")
+		logrus.Fatalln("Error loading .env file")
 	}
 	viper.SetDefault("DEBUG", false)
 	viper.SetDefault("SCRAPER_TIME_DURATION", 1)
@@ -76,8 +77,11 @@ func Init() {
 		panic(err)
 	}
 	if viper.GetBool("DEBUG") {
-		log.Println("Service RUN on DEBUG mode")
-		log.Printf("viper.AllSettings(): %v\n", viper.AllSettings())
+		logrus.SetLevel(logrus.DebugLevel)
+		logrus.Debugln("Service RUN on DEBUG mode")
+		logrus.Debugln(fmt.Sprintf("viper.AllSettings(): %v", viper.AllSettings()))
+	} else {
+		logrus.SetLevel(logrus.InfoLevel)
 	}
 	instance = &config{
 		telegramBotToken:        viper.GetString("TELEGRAM_BOT_TOKEN"),
