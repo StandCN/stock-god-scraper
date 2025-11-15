@@ -1,5 +1,5 @@
 # 使用官方的 Go 语言镜像作为基础镜像
-FROM golang:1.23 AS builder
+FROM golang:1.24 AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -7,8 +7,8 @@ WORKDIR /app
 # 将当前目录的所有文件复制到工作目录中
 COPY . .
 
-# 下载并安装依赖项并构建可执行文件
-RUN go mod tidy && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
+# 构建可执行文件（使用 vendor 目录）
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -o main .
 
 # 检查 .env 文件是否存在，如果不存在则创建一个空的 .env 文件
 RUN if [ ! -f /app/.env ]; then touch /app/.env; fi
